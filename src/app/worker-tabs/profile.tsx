@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../components';
 import { SkillChip } from '../../components/WorkerFlowBits';
 import { colors, radius, shadows, spacing, typography } from '../../theme';
+import { enter } from '../../theme/motion';
 import { useAppState } from '../../state/AppContext';
 import { SAMPLE_DATA_NOTE, languages, skillById, workers, type Skill } from '../../data/mockData';
 
@@ -52,13 +53,13 @@ export default function WorkerProfileScreen() {
     <Screen bg={colors.bg}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Hero header with a subtle weave treatment. */}
-        <Animated.View entering={FadeInDown.duration(320)} style={styles.hero}>
+        <Animated.View entering={enter.fadeUp()} style={styles.hero}>
           <TextilePattern color={colors.navy} opacity={0.05} count={8} />
           <ProfileHeader name={me.name} avatarColor={me.avatarColor} available={available} />
         </Animated.View>
 
         {/* Key facts */}
-        <Animated.View entering={FadeInDown.delay(100).duration(320)} style={styles.infoGrid}>
+        <Animated.View entering={enter.fadeUp(60)} style={styles.infoGrid}>
           <InfoCard icon="briefcase" label="Experience" value={`${me.yearsExperience} years`} />
           <InfoCard icon="location" label="Location" value={me.location} />
           <InfoCard icon="shirt" label="Preferred work" value="Textile / Garment" />
@@ -67,7 +68,7 @@ export default function WorkerProfileScreen() {
         <Text style={styles.sampleNote}>Sample profile. {SAMPLE_DATA_NOTE}</Text>
 
         {/* Skills */}
-        <Animated.View entering={FadeInDown.delay(160).duration(320)}>
+        <Animated.View entering={enter.fadeUp(120)}>
           <SectionHeader title="MY SKILLS" action="Edit" onAction={GO_TO_SKILLS} />
           {profileSkills.length > 0 ? (
             <View style={styles.chipWrap}>
@@ -84,14 +85,14 @@ export default function WorkerProfileScreen() {
         </Animated.View>
 
         {/* Availability CTA */}
-        <Animated.View entering={FadeInDown.delay(220).duration(320)} style={styles.ctaBlock}>
+        <Animated.View entering={enter.fadeUp(160)} style={styles.ctaBlock}>
           <SectionHeader title="AVAILABILITY" />
           <AvailabilityToggle available={available} onToggle={() => setAvailable(!available)} />
           <SecondaryButton label="EDIT SKILLS" onPress={GO_TO_SKILLS} style={styles.secondary} />
         </Animated.View>
 
         {/* Language */}
-        <Animated.View entering={FadeInDown.delay(280).duration(320)}>
+        <Animated.View entering={enter.fadeUp(200)}>
           <SectionHeader title="LANGUAGE" />
           <View style={styles.chipWrap}>
             {languages.map((lang) => (
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
   hero: {
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: radius.xl,
+    borderRadius: radius.lg,
     backgroundColor: colors.surface,
     ...shadows.card,
   },
@@ -133,10 +134,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.xs,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    ...shadows.card,
   },
   infoIcon: {
     width: 38,

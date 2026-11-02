@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import {
@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { EmployerMark, SampleCaption } from '../../components/EmployerFlowBits';
 import { colors, radius, shadows, spacing, typography } from '../../theme';
+import { enter } from '../../theme/motion';
 import { SAMPLE_DATA_NOTE, languages } from '../../data/mockData';
 import { useAppState } from '../../state/AppContext';
 
@@ -32,7 +33,7 @@ export default function EmployerAccountScreen() {
     <Screen bg={colors.bg} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Employer identity */}
-        <Animated.View entering={FadeInDown.duration(280)} style={styles.identity}>
+        <Animated.View entering={enter.fadeUp()} style={styles.identity}>
           <EmployerMark size={84} initials="ST" />
           <Text style={styles.name} accessibilityRole="header">
             Shakti Staffing
@@ -42,7 +43,7 @@ export default function EmployerAccountScreen() {
         </Animated.View>
 
         {/* Language */}
-        <Animated.View entering={FadeInDown.delay(100).duration(300)} style={[styles.card, shadows.card]}>
+        <Animated.View entering={enter.fadeUp(100)} style={[styles.card, shadows.card]}>
           <View style={styles.headRow}>
             <View style={styles.headFlex}>
               <SectionHeader title="Language" />
@@ -63,7 +64,7 @@ export default function EmployerAccountScreen() {
         </Animated.View>
 
         {/* Role mode */}
-        <Animated.View entering={FadeInDown.delay(180).duration(300)} style={[styles.card, shadows.card]}>
+        <Animated.View entering={enter.fadeUp(180)} style={[styles.card, shadows.card]}>
           <View style={styles.roleRow}>
             <View style={styles.roleIcon}>
               <MaterialCommunityIcons name="factory" size={26} color={colors.primary} />
@@ -82,7 +83,7 @@ export default function EmployerAccountScreen() {
         </Animated.View>
 
         {/* About */}
-        <Animated.View entering={FadeInDown.delay(260).duration(300)} style={[styles.card, shadows.card]}>
+        <Animated.View entering={enter.fadeUp(260)} style={[styles.card, shadows.card]}>
           <Text style={styles.aboutTitle} accessibilityRole="header">
             Worker Connect
           </Text>

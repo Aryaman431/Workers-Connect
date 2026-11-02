@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors, radius, shadows, spacing, typography } from '../theme';
+import { GlassSurface } from './GlassSurface';
 
 type Props = {
   value: string;
@@ -12,48 +13,47 @@ type Props = {
   autoFocus?: boolean;
 };
 
-/** Rounded search input (min 52px tall) with leading icon and clear button. */
+/** Glass-backed search input (min 52px tall) with leading icon and clear button. */
 export function SearchBar({ value, onChangeText, placeholder = 'Search', onSubmit, autoFocus }: Props) {
   return (
-    <View style={[styles.wrap, shadows.card]}>
-      <Ionicons name="search" size={20} color={colors.muted} />
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.muted}
-        style={styles.input}
-        returnKeyType="search"
-        onSubmitEditing={onSubmit}
-        autoFocus={autoFocus}
-        accessibilityLabel={placeholder}
-        accessibilityRole="search"
-        clearButtonMode="never"
-      />
-      {value.length > 0 ? (
-        <Pressable
-          onPress={() => onChangeText('')}
-          accessibilityRole="button"
-          accessibilityLabel="Clear search"
-          hitSlop={10}
-          style={styles.clear}
-        >
-          <Ionicons name="close" size={18} color={colors.white} />
-        </Pressable>
-      ) : null}
-    </View>
+    <GlassSurface tone="light" style={[styles.glass, shadows.card]}>
+      <View style={styles.wrap}>
+        <Ionicons name="search" size={20} color={colors.muted} />
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.muted}
+          style={styles.input}
+          returnKeyType="search"
+          onSubmitEditing={onSubmit}
+          autoFocus={autoFocus}
+          accessibilityLabel={placeholder}
+          accessibilityRole="search"
+          clearButtonMode="never"
+        />
+        {value.length > 0 ? (
+          <Pressable
+            onPress={() => onChangeText('')}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
+            hitSlop={12}
+            style={styles.clear}
+          >
+            <Ionicons name="close" size={18} color={colors.white} />
+          </Pressable>
+        ) : null}
+      </View>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
+  glass: { borderRadius: radius.md },
   wrap: {
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 52,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingLeft: spacing.lg,
     paddingRight: spacing.xs,
     gap: spacing.sm,

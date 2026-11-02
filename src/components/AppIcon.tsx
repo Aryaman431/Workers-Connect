@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import type { IconLib } from '../data/mockData';
+import { colors } from '../theme';
 
 type Props = {
   lib: IconLib;
@@ -12,7 +13,7 @@ type Props = {
 };
 
 /** Small helper that renders an icon from either supported icon family. */
-export function AppIcon({ lib, name, size = 24, color = '#17212B', accessibilityLabel }: Props) {
+export function AppIcon({ lib, name, size = 24, color = colors.dark, accessibilityLabel }: Props) {
   if (lib === 'Ionicons') {
     return (
       <Ionicons

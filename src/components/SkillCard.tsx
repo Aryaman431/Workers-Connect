@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors, radius, shadows, spacing, typography } from '../theme';
+import { motion, usePressScale } from '../theme/motion';
 import type { Skill } from '../data/mockData';
 import { AppIcon } from './AppIcon';
 
@@ -15,29 +16,24 @@ type Props = {
 
 /** Tappable skill tile for selection grids — minimum 104px tall. */
 export function SkillCard({ skill, selected = false, onPress }: Props) {
-  const scale = useSharedValue(1);
+  const press = usePressScale('control');
   const check = useSharedValue(selected ? 1 : 0);
 
   useEffect(() => {
-    check.value = withTiming(selected ? 1 : 0, { duration: 220 });
+    check.value = withTiming(selected ? 1 : 0, { duration: motion.duration.base, easing: motion.easing.out });
   }, [selected, check]);
 
-  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const checkStyle = useAnimatedStyle(() => ({
     opacity: check.value,
     transform: [{ scale: 0.6 + check.value * 0.4 }],
   }));
 
   return (
-    <Animated.View style={[styles.card, selected && styles.cardSelected, shadows.card, cardStyle]}>
+    <Animated.View style={[styles.card, selected && styles.cardSelected, shadows.card, press.style]}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => {
-          scale.value = withSpring(0.96, { damping: 18, stiffness: 320 });
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1, { damping: 15, stiffness: 240 });
-        }}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
         accessibilityLabel={`${skill.label}${selected ? ', selected' : ''}`}
@@ -64,12 +60,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 100,
     minHeight: 104,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.border,
   },
-  cardSelected: { borderColor: colors.primary, backgroundColor: '#F2F8FA' },
+  cardSelected: { borderColor: colors.primary, borderWidth: 1.5, backgroundColor: colors.primarySoft },
   pressable: { flex: 1, padding: spacing.md, alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
   check: {
     position: 'absolute',

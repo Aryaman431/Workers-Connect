@@ -3,11 +3,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import {
   AppIcon,
+  GlassSurface,
   Screen,
   SecondaryButton,
   PrimaryButton,
@@ -16,7 +17,8 @@ import {
   TextilePattern,
 } from '../../components';
 import { HeroStatusBar, SampleCaption, callWorker } from '../../components/EmployerFlowBits';
-import { colors, radius, shadows, spacing, typography } from '../../theme';
+import { colors, glass, radius, shadows, spacing, typography } from '../../theme';
+import { enter } from '../../theme/motion';
 import { skillById, workers } from '../../data/mockData';
 import { useAppState } from '../../state/AppContext';
 
@@ -63,9 +65,9 @@ export default function WorkerDetailScreen() {
       <HeroStatusBar />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Gradient hero */}
-        <Animated.View entering={FadeInDown.duration(300)}>
+        <Animated.View entering={enter.fadeUp()}>
           <LinearGradient
-            colors={[colors.navy, colors.primary]}
+            colors={[colors.navy, colors.primaryDark]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.hero, { paddingTop: insets.top + spacing.sm }]}
@@ -85,7 +87,7 @@ export default function WorkerDetailScreen() {
             </View>
 
             <View style={styles.heroBody}>
-              <Animated.View entering={ZoomIn.duration(300)}>
+              <Animated.View entering={enter.fadeUp()}>
                 <View style={styles.heroAvatar}>
                   <Text style={styles.heroInitials}>{initialsOf(worker.name)}</Text>
                 </View>
@@ -120,7 +122,7 @@ export default function WorkerDetailScreen() {
         </Animated.View>
 
         {/* Skills */}
-        <Animated.View entering={FadeInDown.delay(120).duration(300)} style={styles.section}>
+        <Animated.View entering={enter.fadeUp(120)} style={styles.section}>
           <SectionHeader title="Skills" />
           <View style={styles.skillGrid}>
             {worker.skills.map((skillId) => {
@@ -147,10 +149,10 @@ export default function WorkerDetailScreen() {
         </Animated.View>
 
         {/* Info grid */}
-        <Animated.View entering={FadeInDown.delay(200).duration(300)} style={styles.section}>
+        <Animated.View entering={enter.fadeUp(200)} style={styles.section}>
           <SectionHeader title="About this worker" />
           <View style={styles.infoGrid}>
-            <View style={[styles.infoCell, shadows.card]}>
+            <View style={styles.infoCell}>
               <View style={styles.infoHead}>
                 <Ionicons name="briefcase-outline" size={16} color={colors.primary} />
                 <Text style={styles.infoLabel}>Experience</Text>
@@ -158,7 +160,7 @@ export default function WorkerDetailScreen() {
               <Text style={styles.infoValue}>{worker.yearsExperience} years</Text>
             </View>
 
-            <View style={[styles.infoCell, shadows.card]}>
+            <View style={styles.infoCell}>
               <View style={styles.infoHead}>
                 <Ionicons name="location-outline" size={16} color={colors.primary} />
                 <Text style={styles.infoLabel}>Location</Text>
@@ -166,7 +168,7 @@ export default function WorkerDetailScreen() {
               <Text style={styles.infoValue}>{worker.location}</Text>
             </View>
 
-            <View style={[styles.infoCell, shadows.card]}>
+            <View style={styles.infoCell}>
               <View style={styles.infoHead}>
                 <Ionicons name="calendar-outline" size={16} color={colors.primary} />
                 <Text style={styles.infoLabel}>Available today</Text>
@@ -188,7 +190,7 @@ export default function WorkerDetailScreen() {
               </View>
             </View>
 
-            <View style={[styles.infoCell, shadows.card]}>
+            <View style={styles.infoCell}>
               <View style={styles.infoHead}>
                 <Ionicons name="business-outline" size={16} color={colors.primary} />
                 <Text style={styles.infoLabel}>Preferred work</Text>
@@ -202,7 +204,12 @@ export default function WorkerDetailScreen() {
       </ScrollView>
 
       {/* Sticky call / save bar */}
-      <View style={[styles.ctaBar, { paddingBottom: insets.bottom > 0 ? insets.bottom + spacing.sm : spacing.lg }]}>
+      <GlassSurface
+        tone="light"
+        emphasis="strong"
+        intensity={glass.intensityHigh}
+        style={[styles.ctaBar, { paddingBottom: insets.bottom > 0 ? insets.bottom + spacing.sm : spacing.lg }]}
+      >
         <PrimaryButton
           label="CALL WORKER"
           onPress={() => callWorker(worker)}
@@ -211,7 +218,7 @@ export default function WorkerDetailScreen() {
         />
         <Animated.View
           key={saved ? 'saved' : 'save'}
-          entering={FadeIn.duration(220)}
+          entering={enter.fade()}
           style={styles.saveWrap}
         >
           <SecondaryButton
@@ -227,7 +234,7 @@ export default function WorkerDetailScreen() {
             style={styles.saveInner}
           />
         </Animated.View>
-      </View>
+      </GlassSurface>
     </Screen>
   );
 }
@@ -285,7 +292,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.16)',
     borderColor: 'rgba(255,255,255,0.28)',
     borderWidth: 1,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: 6,
   },
@@ -300,7 +307,7 @@ const styles = StyleSheet.create({
   skillCell: {
     width: '48%',
     minHeight: 96,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1.5,
     padding: spacing.md,
     alignItems: 'center',
@@ -324,7 +331,7 @@ const styles = StyleSheet.create({
   infoCell: {
     width: '48%',
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
@@ -349,9 +356,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     ...shadows.elevated,
   },
   callAction: { flex: 1.6, paddingHorizontal: spacing.md, minHeight: 56 },

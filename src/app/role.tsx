@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { RoleCard, Screen, TextilePattern } from '../components';
 import { colors, spacing, typography } from '../theme';
+import { enter } from '../theme/motion';
 import { useAppState, type Role } from '../state/AppContext';
 
 export default function RoleScreen() {
@@ -25,7 +26,7 @@ export default function RoleScreen() {
       <TextilePattern color={colors.navy} opacity={0.05} count={10} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={FadeInDown.duration(360)} style={styles.header}>
+        <Animated.View entering={enter.fadeUp()} style={styles.header}>
           <Text style={styles.kicker}>GET STARTED</Text>
           <Text style={styles.title} accessibilityRole="header">
             How will you use Worker Connect?
@@ -33,7 +34,7 @@ export default function RoleScreen() {
           <Text style={styles.subtitle}>Choose one. You can explore the other side any time.</Text>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(120).duration(400)} style={styles.cards}>
+        <Animated.View entering={enter.fadeUp(120)} style={styles.cards}>
           <RoleCard
             role="worker"
             title="WORKER"

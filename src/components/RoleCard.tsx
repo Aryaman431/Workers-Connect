@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { absoluteFill, colors, radius, shadows, spacing, typography } from '../theme';
+import { motion, usePressScale } from '../theme/motion';
 import { AppIcon } from './AppIcon';
 import type { IconLib } from '../data/mockData';
 
@@ -18,28 +19,26 @@ type Props = {
 
 /** Large (min 180px) role-selection card with a selection animation. */
 export function RoleCard({ role, title, subtitle, primaryIcon, secondaryIcon, selected = false, onPress }: Props) {
-  const scale = useSharedValue(1);
+  const press = usePressScale('card');
   const selection = useSharedValue(selected ? 1 : 0);
 
   React.useEffect(() => {
-    selection.value = withTiming(selected ? 1 : 0, { duration: 250 });
+    selection.value = withTiming(selected ? 1 : 0, {
+      duration: motion.duration.base,
+      easing: motion.easing.out,
+    });
   }, [selected, selection]);
 
-  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const ringStyle = useAnimatedStyle(() => ({ opacity: selection.value }));
 
   const dark = role === 'worker';
 
   return (
-    <Animated.View style={[styles.wrap, cardStyle]}>
+    <Animated.View style={[styles.wrap, press.style]}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => {
-          scale.value = withSpring(0.97, { damping: 20, stiffness: 320 });
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1, { damping: 16, stiffness: 260 });
-        }}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
         accessibilityRole="button"
         accessibilityLabel={`${title}. ${subtitle}`}
         accessibilityState={{ selected }}
@@ -75,18 +74,18 @@ const styles = StyleSheet.create({
   wrap: { width: '100%' },
   card: {
     minHeight: 180,
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     padding: spacing.xl,
     gap: spacing.sm,
     justifyContent: 'center',
     overflow: 'hidden',
-    borderWidth: 2,
+    borderWidth: 1,
   },
   cardDark: { backgroundColor: colors.navy, borderColor: colors.navy },
   cardLight: { backgroundColor: colors.surface, borderColor: colors.primary },
-  selectedDark: { borderColor: colors.accent },
-  selectedLight: { borderColor: colors.accent, backgroundColor: colors.accentSoft },
-  selectedRing: { ...absoluteFill, borderWidth: 3, borderColor: 'transparent', borderRadius: radius.xl },
+  selectedDark: { borderColor: colors.accent, borderWidth: 1.5 },
+  selectedLight: { borderColor: colors.accent, borderWidth: 1.5, backgroundColor: colors.accentSoft },
+  selectedRing: { ...absoluteFill, borderWidth: 3, borderColor: 'transparent', borderRadius: radius.md },
   selectedRingDark: { borderColor: colors.accent },
   iconRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: spacing.sm },
   iconRowLight: {},
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: -spacing.sm,
     marginBottom: spacing.xs,
-    borderWidth: 2,
+    borderWidth: 1,
   },
   title: { ...typography.h2, color: colors.dark },
   subtitle: { ...typography.body, color: colors.muted, marginBottom: spacing.xs },
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     minHeight: 40,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     marginTop: spacing.xs,

@@ -2,11 +2,12 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { PrimaryButton, Screen, AppIcon, TextilePattern } from '../components';
 import { colors, radius, spacing, typography } from '../theme';
+import { enter, layoutSoft } from '../theme/motion';
 import { skills } from '../data/mockData';
 
 type Panel = {
@@ -21,19 +22,19 @@ const PANELS: Panel[] = [
     headline: 'Skills should speak for themselves.',
     support: 'Show what you can do using simple visual skills.',
     visual: 'skills',
-    gradient: ['#12344D', '#176B87'],
+    gradient: [colors.navy, colors.primary],
   },
   {
     headline: 'Find the right connection.',
     support: 'Workers and employers connect directly.',
     visual: 'connect',
-    gradient: ['#176B87', '#D97745'],
+    gradient: [colors.primary, colors.accent],
   },
   {
     headline: 'Built for real workers.',
     support: 'Simple visuals. Clear choices. Less typing.',
     visual: 'simple',
-    gradient: ['#12344D', '#124F63'],
+    gradient: [colors.navy, colors.primaryDark],
   },
 ];
 
@@ -93,7 +94,7 @@ export default function OnboardingScreen() {
         {PANELS.map((panel, i) => (
           <View key={panel.headline} style={[styles.panel, { width }]}>
             <Visual kind={panel.visual} gradient={panel.gradient} />
-            <Animated.View entering={FadeInDown.delay(120).duration(400)} style={styles.copy}>
+            <Animated.View entering={enter.fadeUp(120)} style={styles.copy}>
               <Text style={styles.headline} accessibilityRole="header">
                 {panel.headline}
               </Text>
@@ -107,7 +108,7 @@ export default function OnboardingScreen() {
         {PANELS.map((p, i) => (
           <Animated.View
             key={p.headline}
-            layout={LinearTransition.springify().damping(18)}
+            layout={layoutSoft}
             style={[styles.dot, i === index && styles.dotActive]}
           />
         ))}
@@ -123,12 +124,12 @@ export default function OnboardingScreen() {
 function Visual({ kind, gradient }: { kind: Panel['visual']; gradient: [string, string] }) {
   return (
     <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.visual}>
-      <TextilePattern color="#FFFFFF" opacity={0.08} count={12} />
+      <TextilePattern color={colors.white} opacity={0.08} count={12} />
 
       {kind === 'skills' && (
         <View style={styles.skillGrid}>
           {skills.slice(0, 6).map((s, i) => (
-            <Animated.View key={s.id} entering={FadeInDown.delay(80 * i).duration(360)} style={styles.skillTile}>
+            <Animated.View key={s.id} entering={enter.listRow(i)} style={styles.skillTile}>
               <AppIcon lib={s.icon.lib} name={s.icon.name} size={30} color={colors.white} />
             </Animated.View>
           ))}

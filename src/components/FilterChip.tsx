@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { colors, radius, spacing, typography } from '../theme';
+import { usePressScale } from '../theme/motion';
 
 type Props = {
   label: string;
@@ -10,24 +11,19 @@ type Props = {
   onPress?: () => void;
 };
 
-/** Pill filter chip toggle. */
+/** Compact filter chip toggle (min 40px tall) with a press-scale response. */
 export function FilterChip({ label, active = false, onPress }: Props) {
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const press = usePressScale('control');
 
   return (
     <AnimatedPressable
       onPress={onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.95, { damping: 18, stiffness: 320 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 240 });
-      }}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       accessibilityLabel={label}
-      style={[styles.chip, active && styles.chipActive, animatedStyle]}
+      style={[styles.chip, active && styles.chipActive, press.style]}
     >
       <Text style={[styles.label, active && styles.labelActive]} numberOfLines={1}>
         {label}
@@ -43,7 +39,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
     backgroundColor: colors.chipBg,
     borderWidth: 1,
     borderColor: colors.border,

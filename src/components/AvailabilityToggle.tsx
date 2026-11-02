@@ -6,12 +6,12 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withSequence,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { absoluteFill, colors, radius, shadows, spacing, typography } from '../theme';
+import { motion } from '../theme/motion';
 
 type Props = {
   available?: boolean;
@@ -30,7 +30,12 @@ export function AvailabilityToggle({ available = true, onToggle }: Props) {
   const knob = useSharedValue(available ? 1 : 0);
 
   useEffect(() => {
-    knob.value = withSpring(available ? 1 : 0, { damping: 18, stiffness: 220 });
+    knob.value = withTiming(available ? 1 : 0, {
+      duration: motion.duration.base,
+      easing: motion.easing.out,
+    });
+    // Glow is opacity-only (no scaling) on a slow ≥1200ms cycle, and stops
+    // completely whenever the worker is offline.
     if (available) {
       glow.value = withRepeat(
         withSequence(
@@ -41,7 +46,7 @@ export function AvailabilityToggle({ available = true, onToggle }: Props) {
         true
       );
     } else {
-      glow.value = withTiming(0, { duration: 250 });
+      glow.value = withTiming(0, { duration: motion.duration.base });
     }
   }, [available, glow, knob]);
 
@@ -59,10 +64,13 @@ export function AvailabilityToggle({ available = true, onToggle }: Props) {
     <AnimatedPressable
       onPress={onToggle}
       onPressIn={() => {
-        scale.value = withSpring(0.97, { damping: 20, stiffness: 320 });
+        scale.value = withTiming(motion.scale.card, {
+          duration: motion.duration.base,
+          easing: motion.easing.out,
+        });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, { damping: 16, stiffness: 260 });
+        scale.value = withTiming(1, { duration: motion.duration.base, easing: motion.easing.out });
       }}
       accessibilityRole="switch"
       accessibilityState={{ checked: available }}
@@ -93,7 +101,7 @@ export function AvailabilityToggle({ available = true, onToggle }: Props) {
 const styles = StyleSheet.create({
   card: {
     minHeight: 148,
-    borderRadius: radius.xl,
+    borderRadius: radius.lg,
     backgroundColor: colors.navy,
     padding: spacing.xl,
     overflow: 'hidden',

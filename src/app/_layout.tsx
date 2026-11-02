@@ -29,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="employer-tabs" />
           <Stack.Screen name="availability" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="worker/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="job/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack>
       </AppProvider>
     </SafeAreaProvider>

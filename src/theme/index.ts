@@ -1,4 +1,4 @@
-import { Platform, TextStyle, ViewStyle } from 'react-native';
+import { TextStyle, ViewStyle } from 'react-native';
 
 /**
  * Worker Connect design system.
@@ -7,24 +7,48 @@ import { Platform, TextStyle, ViewStyle } from 'react-native';
  */
 
 export const colors = {
-  bg: '#F7F5F0',
-  surface: '#FFFFFF',
-  dark: '#17212B',
-  navy: '#12344D',
-  primary: '#176B87',
-  primaryDark: '#124F63',
-  accent: '#D97745',
-  accentSoft: '#F6E5DA',
-  success: '#2F8F5B',
-  successSoft: '#E3F1E9',
-  warning: '#D89A35',
-  danger: '#C95757',
-  muted: '#6B7280',
-  border: '#E4E1DA',
+  bg: '#F4F1E8',
+  surface: '#FDFCF8',
   white: '#FFFFFF',
-  chipBg: '#EFEBE3',
-  darkSurface: '#1E2A35',
-  darkMuted: '#8B98A5',
+  border: '#E3DED2',
+  chipBg: '#EEEAE0',
+  muted: '#6A6D71',
+  dark: '#1B2027',
+  darkSurface: '#232A31',
+  darkMuted: '#98A1A9',
+  navy: '#1D3547',
+  primary: '#1A6478',
+  primaryDark: '#11495A',
+  accent: '#C06B3E',
+  accentSoft: '#F2E3D7',
+  success: '#3E7C57',
+  successSoft: '#E4EDE5',
+  warning: '#B9862F',
+  danger: '#B04A42',
+  ivory: '#FBF9F3',
+  ink: '#12161B',
+  textileBlue: '#55808F',
+  sage: '#7D9B86',
+  primarySoft: '#E7EFF1',
+  warningSoft: '#F5EBD7',
+  warningInk: '#8A6216',
+} as const;
+
+/**
+ * Translucent surfaces consumed by `GlassSurface`.
+ * The rgba strings live here (not inside components) so the glass language is
+ * defined in exactly one place.
+ */
+export const glass = {
+  fill: 'rgba(253,252,248,0.72)',
+  fillStrong: 'rgba(253,252,248,0.90)',
+  border: 'rgba(255,255,255,0.70)',
+  hairline: 'rgba(27,32,39,0.08)',
+  darkFill: 'rgba(29,53,71,0.72)',
+  darkBorder: 'rgba(255,255,255,0.22)',
+  intensity: 26,
+  intensityHigh: 45,
+  tint: 'light',
 } as const;
 
 export const spacing = {
@@ -38,10 +62,11 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 18,
-  xl: 24,
+  xs: 4,
+  sm: 6,
+  md: 10,
+  lg: 14,
+  xl: 18,
   pill: 999,
 } as const;
 
@@ -53,44 +78,45 @@ type TypographyVariant = {
 };
 
 export const typography: Record<
-  'display' | 'h1' | 'h2' | 'h3' | 'body' | 'bodyBold' | 'label' | 'caption',
+  'display' | 'h1' | 'h2' | 'h3' | 'body' | 'bodyBold' | 'label' | 'caption' | 'kicker' | 'stat',
   TypographyVariant
 > = {
-  display: { fontSize: 38, fontWeight: '800', lineHeight: 44, letterSpacing: 1.5 },
-  h1: { fontSize: 30, fontWeight: '800', lineHeight: 38, letterSpacing: 0.2 },
-  h2: { fontSize: 24, fontWeight: '700', lineHeight: 31, letterSpacing: 0.2 },
-  h3: { fontSize: 19, fontWeight: '700', lineHeight: 26, letterSpacing: 0.2 },
+  display: { fontSize: 34, fontWeight: '800', lineHeight: 40, letterSpacing: 1.2 },
+  h1: { fontSize: 28, fontWeight: '800', lineHeight: 36, letterSpacing: 0.2 },
+  h2: { fontSize: 22, fontWeight: '700', lineHeight: 29, letterSpacing: 0.2 },
+  h3: { fontSize: 18, fontWeight: '700', lineHeight: 25, letterSpacing: 0.2 },
   body: { fontSize: 16, fontWeight: '400', lineHeight: 24, letterSpacing: 0.1 },
   bodyBold: { fontSize: 16, fontWeight: '700', lineHeight: 24, letterSpacing: 0.1 },
   label: { fontSize: 14, fontWeight: '600', lineHeight: 20, letterSpacing: 0.3 },
   caption: { fontSize: 13, fontWeight: '500', lineHeight: 18, letterSpacing: 0.2 },
+  kicker: { fontSize: 11, fontWeight: '800', lineHeight: 16, letterSpacing: 1.6 },
+  stat: { fontSize: 20, fontWeight: '800', lineHeight: 26, letterSpacing: 0.1 },
 };
 
-const shadowBase: ViewStyle = Platform.select<ViewStyle>({
-  ios: {
-    shadowColor: '#17212B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-  },
-  android: { elevation: 2 },
-  default: {},
-}) as ViewStyle;
+/** Shared shadow colour for every elevation in the system. */
+const shadowColor = colors.dark;
 
 export const shadows: Record<'card' | 'elevated' | 'floating', ViewStyle> = {
-  card: { ...shadowBase },
+  card: {
+    shadowColor,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
+  },
   elevated: {
-    ...shadowBase,
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
-    elevation: 5,
+    shadowColor,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   floating: {
-    ...shadowBase,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 22,
-    elevation: 9,
+    shadowColor,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 6,
   },
 };
 
@@ -120,6 +146,6 @@ export const tints = {
   navy: colors.navy,
 } as const;
 
-export const theme = { colors, spacing, radius, typography, shadows, iconSizes, tints };
+export const theme = { colors, spacing, radius, typography, shadows, iconSizes, tints, glass };
 
 export default theme;

@@ -1,11 +1,12 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { AppHeader, Screen } from '../../components';
 import { EmptyState, EmployerWorkerCard, SampleCaption } from '../../components/EmployerFlowBits';
 import { colors, spacing } from '../../theme';
+import { enter } from '../../theme/motion';
 import { workers } from '../../data/mockData';
 import { useAppState } from '../../state/AppContext';
 
@@ -18,7 +19,7 @@ export default function EmployerSavedScreen() {
 
   return (
     <Screen bg={colors.bg} edges={['top']}>
-      <Animated.View entering={FadeInDown.duration(280)}>
+      <Animated.View entering={enter.fadeUp()}>
         <AppHeader
           title="Saved workers"
           subtitle={`${savedWorkers.length} ${savedWorkers.length === 1 ? 'worker' : 'workers'} saved`}
@@ -35,7 +36,7 @@ export default function EmployerSavedScreen() {
             onAction={() => router.push('/employer-tabs/search')}
           />
         ) : (
-          <Animated.View entering={FadeInDown.delay(80).duration(300)} style={styles.list}>
+          <Animated.View entering={enter.fadeUp(80)} style={styles.list}>
             {savedWorkers.map((worker, index) => (
               <EmployerWorkerCard
                 key={worker.id}

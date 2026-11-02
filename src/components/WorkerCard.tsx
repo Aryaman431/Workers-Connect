@@ -1,9 +1,10 @@
 import React from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors, radius, shadows, spacing, typography } from '../theme';
+import { usePressScale } from '../theme/motion';
 import { skillById, type Worker } from '../data/mockData';
 import { AppIcon } from './AppIcon';
 import { Avatar } from './Avatar';
@@ -19,8 +20,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /** Worker result card — avatar, skills, distance, availability and quick actions. */
 export function WorkerCard({ worker, onPressView, compact = false }: Props) {
-  const callScale = useSharedValue(1);
-  const callStyle = useAnimatedStyle(() => ({ transform: [{ scale: callScale.value }] }));
+  const callPress = usePressScale('button');
 
   const call = () => {
     const tel = `tel:${worker.phone.replace(/\s+/g, '')}`;
@@ -75,15 +75,11 @@ export function WorkerCard({ worker, onPressView, compact = false }: Props) {
 
         <AnimatedPressable
           onPress={call}
-          onPressIn={() => {
-            callScale.value = withSpring(0.96, { damping: 18, stiffness: 320 });
-          }}
-          onPressOut={() => {
-            callScale.value = withSpring(1, { damping: 15, stiffness: 240 });
-          }}
+          onPressIn={callPress.onPressIn}
+          onPressOut={callPress.onPressOut}
           accessibilityRole="button"
           accessibilityLabel={`Call ${worker.name}`}
-          style={[styles.callBtn, callStyle]}
+          style={[styles.callBtn, callPress.style]}
         >
           <Ionicons name="call" size={16} color={colors.white} />
           <Text style={styles.callText}>Call</Text>
@@ -96,7 +92,7 @@ export function WorkerCard({ worker, onPressView, compact = false }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
@@ -114,14 +110,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingHorizontal: spacing.sm + 2,
     paddingVertical: 5,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
   },
   chipText: { ...typography.caption, fontWeight: '700', fontSize: 12 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   viewBtn: {
     flex: 1,
     minHeight: 48,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1.5,
     borderColor: colors.primary,
     flexDirection: 'row',
@@ -134,7 +130,7 @@ const styles = StyleSheet.create({
   callBtn: {
     minHeight: 48,
     paddingHorizontal: spacing.xl,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',

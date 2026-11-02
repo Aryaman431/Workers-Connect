@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { colors, radius, spacing, typography } from '../theme';
+import { usePressScale } from '../theme/motion';
 
 type Props = {
   label: string;
@@ -15,22 +16,17 @@ type Props = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/** Secondary (outlined/soft) button — same 52px height as the primary button. */
+/** Secondary (outlined/soft) button — same 56px height as the primary button. */
 export function SecondaryButton({ label, onPress, icon, disabled = false, tone = 'default', style }: Props) {
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const press = usePressScale('button');
 
   const dark = tone === 'dark';
 
   return (
     <AnimatedPressable
       onPress={disabled ? undefined : onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.97, { damping: 20, stiffness: 320 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 16, stiffness: 260 });
-      }}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -38,7 +34,7 @@ export function SecondaryButton({ label, onPress, icon, disabled = false, tone =
       style={[
         styles.button,
         dark ? styles.darkBg : styles.lightBg,
-        animatedStyle,
+        press.style,
         disabled && styles.disabled,
         style,
       ]}
@@ -55,8 +51,8 @@ export function SecondaryButton({ label, onPress, icon, disabled = false, tone =
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 52,
-    borderRadius: radius.lg,
+    minHeight: 56,
+    borderRadius: radius.md,
     borderWidth: 1.5,
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,

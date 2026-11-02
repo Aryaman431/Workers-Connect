@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import {
   AppHeader,
@@ -13,6 +13,7 @@ import {
 } from '../components';
 import { AvailabilityRing } from '../components/WorkerFlowBits';
 import { colors, radius, spacing, typography } from '../theme';
+import { enter } from '../theme/motion';
 import { useAppState } from '../state/AppContext';
 
 type Range = 'today' | 'week';
@@ -34,8 +35,8 @@ export default function AvailabilityScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Big centered availability visual. */}
-        <Animated.View entering={FadeInDown.duration(300)} style={styles.center}>
-          <Animated.View entering={ZoomIn.duration(340)}>
+        <Animated.View entering={enter.fadeUp()} style={styles.center}>
+          <Animated.View entering={enter.fadeUp(60)}>
             <AvailabilityRing available={available} />
           </Animated.View>
 
@@ -55,12 +56,12 @@ export default function AvailabilityScreen() {
         </Animated.View>
 
         {/* Primary toggle. */}
-        <Animated.View entering={FadeInDown.delay(120).duration(320)}>
+        <Animated.View entering={enter.fadeUp(120)}>
           <AvailabilityToggle available={available} onToggle={() => setAvailable(!available)} />
         </Animated.View>
 
         {/* Quick range chips — visual state only in this prototype. */}
-        <Animated.View entering={FadeInDown.delay(200).duration(320)} style={styles.rangeBlock}>
+        <Animated.View entering={enter.fadeUp(200)} style={styles.rangeBlock}>
           <Text style={styles.rangeLabel}>HOW LONG?</Text>
           <View style={styles.rangeRow}>
             <FilterChip

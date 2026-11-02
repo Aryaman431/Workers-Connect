@@ -6,7 +6,6 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withSequence,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -21,7 +20,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppIcon } from './AppIcon';
 import { StatusBadge } from './StatusBadge';
 import { colors, iconSizes, radius, shadows, spacing, typography } from '../theme';
-import type { Skill } from '../data/mockData';
+import { motion, usePressScale } from '../theme/motion';
+import { skillById, type Opportunity, type Skill } from '../data/mockData';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -36,29 +36,24 @@ type BigSkillCardProps = {
 };
 
 export function BigSkillCard({ skill, selected = false, onPress }: BigSkillCardProps) {
-  const scale = useSharedValue(1);
+  const press = usePressScale('control');
   const check = useSharedValue(selected ? 1 : 0);
 
   useEffect(() => {
-    check.value = withSpring(selected ? 1 : 0, { damping: 13, stiffness: 260 });
+    check.value = withTiming(selected ? 1 : 0, { duration: motion.duration.base, easing: motion.easing.out });
   }, [selected, check]);
 
-  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const checkStyle = useAnimatedStyle(() => ({
     opacity: check.value,
     transform: [{ scale: 0.5 + check.value * 0.5 }],
   }));
 
   return (
-    <Animated.View style={[styles.bigCard, selected && styles.bigCardSelected, shadows.card, cardStyle]}>
+    <Animated.View style={[styles.bigCard, selected && styles.bigCardSelected, shadows.card, press.style]}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => {
-          scale.value = withSpring(0.95, { damping: 18, stiffness: 320 });
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1, { damping: 15, stiffness: 240 });
-        }}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
         accessibilityLabel={`${skill.label}${selected ? ', selected' : ''}`}
@@ -96,6 +91,7 @@ export function AvailabilityRing({ available, size = 156 }: AvailabilityRingProp
 
   useEffect(() => {
     if (available) {
+      // Opacity-only halo on a slow ≥1200ms cycle; no scaling at all.
       pulse.value = withRepeat(
         withSequence(
           withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
@@ -105,13 +101,12 @@ export function AvailabilityRing({ available, size = 156 }: AvailabilityRingProp
         true
       );
     } else {
-      pulse.value = withTiming(0, { duration: 250 });
+      pulse.value = withTiming(0, { duration: motion.duration.base });
     }
   }, [available, pulse]);
 
   const pulseStyle = useAnimatedStyle(() => ({
-    opacity: available ? 0.4 * (1 - pulse.value) : 0,
-    transform: [{ scale: 1 + pulse.value * 0.14 }],
+    opacity: available ? pulse.value * 0.45 : 0,
   }));
 
   const ringBg = available ? colors.successSoft : colors.chipBg;
@@ -140,7 +135,7 @@ export function AvailabilityRing({ available, size = 156 }: AvailabilityRingProp
 }
 
 /* ------------------------------------------------------------------ */
-/* SkillChip — compact icon + label pill used on the Profile screen.  */
+/* SkillChip — compact icon + label chip used on the Profile screen.  */
 /* ------------------------------------------------------------------ */
 
 type SkillChipProps = {
@@ -149,21 +144,16 @@ type SkillChipProps = {
 };
 
 export function SkillChip({ skill, onPress }: SkillChipProps) {
-  const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const press = usePressScale('control');
 
   return (
     <AnimatedPressable
       onPress={onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.96, { damping: 18, stiffness: 320 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 240 });
-      }}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
       accessibilityRole="button"
       accessibilityLabel={`${skill.label} skill`}
-      style={[styles.chip, { backgroundColor: `${skill.color}14`, borderColor: `${skill.color}59` }, animStyle]}
+      style={[styles.chip, { backgroundColor: `${skill.color}14`, borderColor: `${skill.color}59` }, press.style]}
     >
       <View style={[styles.chipIcon, { backgroundColor: `${skill.color}29` }]}>
         <AppIcon lib={skill.icon.lib} name={skill.icon.name} size={16} color={skill.color} />
@@ -180,47 +170,99 @@ export function SkillChip({ skill, onPress }: SkillChipProps) {
 /* ------------------------------------------------------------------ */
 
 type OpportunityCardProps = {
-  factory: string;
-  role: string;
-  distanceKm: number;
-  hiring: boolean;
+  opportunity: Opportunity;
   onPress?: () => void;
 };
 
-export function OpportunityCard({ factory, role, distanceKm, hiring, onPress }: OpportunityCardProps) {
-  const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+export function OpportunityCard({ opportunity, onPress }: OpportunityCardProps) {
+  const press = usePressScale('card');
+  const { factory, role, location, distanceKm, hiring, skillId, skillIds, salaryMin, salaryMax, vacancies, postedAgo } =
+    opportunity;
+
+  const skill = skillById(skillId);
+  const markColor = skill?.color ?? colors.navy;
+  const chipSkills = skillIds
+    .map((id) => skillById(id))
+    .filter((s): s is Skill => s !== undefined)
+    .slice(0, 2);
+  const extraSkills = skillIds.length - chipSkills.length;
+  const district = location.split(',')[0];
 
   return (
     <AnimatedPressable
       onPress={onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.97, { damping: 20, stiffness: 320 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 16, stiffness: 260 });
-      }}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
       accessibilityRole="button"
-      accessibilityLabel={`${factory}, ${role}, ${distanceKm} kilometres away${hiring ? ', hiring now' : ''}`}
-      style={[styles.oppCard, shadows.card, animStyle]}
+      accessibilityLabel={`${role} at ${factory}, ${location}, ${distanceKm} kilometres away, ₹${salaryMin} to ${salaryMax} per month, ${vacancies} vacancies`}
+      style={[styles.oppCard, shadows.card, press.style]}
     >
-      <View style={styles.oppIconBox}>
-        <MaterialCommunityIcons name="factory" size={26} color={colors.navy} />
+      {/* Row 1 — mark, title block, hiring badge */}
+      <View style={styles.oppTopRow}>
+        <View
+          style={[styles.oppMark, { backgroundColor: `${markColor}12`, borderColor: `${markColor}40` }]}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <MaterialCommunityIcons name="factory" size={20} color={colors.navy} />
+        </View>
+
+        <View style={styles.oppTitleCol}>
+          <Text style={styles.oppTitle} numberOfLines={2}>
+            {role.toUpperCase()}
+          </Text>
+          <Text style={styles.oppCompany} numberOfLines={1}>
+            {factory}
+          </Text>
+        </View>
+
+        <StatusBadge label={hiring ? 'HIRING NOW' : 'NOT HIRING'} variant={hiring ? 'success' : 'muted'} />
       </View>
 
-      <View style={styles.oppBody}>
-        <Text style={styles.oppFactory} numberOfLines={1}>
-          {factory}
+      {/* Row 2 — location and pay */}
+      <View style={styles.oppMetaRow}>
+        <View style={styles.oppLocation}>
+          <Ionicons name="location" size={14} color={colors.textileBlue} />
+          <Text style={styles.oppLocationText} numberOfLines={1}>
+            {`${district} · ${distanceKm} km`}
+          </Text>
+        </View>
+        <Text style={styles.oppSalary} numberOfLines={1}>
+          {`₹${salaryMin.toLocaleString('en-IN')}–${salaryMax.toLocaleString('en-IN')}`}
         </Text>
-        <Text style={styles.oppRole} numberOfLines={1}>
-          {role}
-        </Text>
-        <View style={styles.oppMetaRow}>
-          <View style={styles.oppDistance}>
-            <Ionicons name="location" size={12} color={colors.muted} />
-            <Text style={styles.oppDistanceText}>{distanceKm} km</Text>
+      </View>
+
+      {/* Row 3 — required skills */}
+      <View style={styles.oppSkillRow}>
+        {chipSkills.map((s) => (
+          <View
+            key={s.id}
+            style={[styles.oppMiniChip, { backgroundColor: `${s.color}12`, borderColor: `${s.color}40` }]}
+          >
+            <AppIcon lib={s.icon.lib} name={s.icon.name} size={12} color={s.color} />
+            <Text style={[styles.oppMiniChipText, { color: s.color }]} numberOfLines={1}>
+              {s.label}
+            </Text>
           </View>
-          <StatusBadge label={hiring ? 'HIRING NOW' : 'NOT HIRING'} variant={hiring ? 'success' : 'muted'} />
+        ))}
+        {extraSkills > 0 ? (
+          <View style={[styles.oppMiniChip, styles.oppMiniChipMore]}>
+            <Text style={[styles.oppMiniChipText, styles.oppMiniChipTextMore]}>+{extraSkills}</Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Seam */}
+      <View style={styles.oppSeam} />
+
+      {/* Row 4 — footer */}
+      <View style={styles.oppFooter}>
+        <Text style={styles.oppFooterMeta} numberOfLines={1}>
+          {`${vacancies} vacancies · Posted ${postedAgo}`}
+        </Text>
+        <View style={styles.oppCta}>
+          <Text style={styles.oppCtaText}>View opportunity</Text>
+          <Ionicons name="arrow-forward" size={14} color={colors.primary} />
         </View>
       </View>
     </AnimatedPressable>
@@ -231,12 +273,12 @@ const styles = StyleSheet.create({
   /* BigSkillCard */
   bigCard: {
     minHeight: 180,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.border,
   },
-  bigCardSelected: { borderColor: colors.primary, backgroundColor: `${colors.primary}12` },
+  bigCardSelected: { borderColor: colors.primary, borderWidth: 1.5, backgroundColor: `${colors.primary}12` },
   bigPressable: {
     flex: 1,
     minHeight: 176,
@@ -281,7 +323,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
     borderWidth: 1,
   },
   chipIcon: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
@@ -289,43 +331,70 @@ const styles = StyleSheet.create({
 
   /* OpportunityCard */
   oppCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    minHeight: 92,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-  },
-  oppIconBox: {
-    width: 48,
-    height: 48,
+    minHeight: 140,
+    padding: spacing.lg,
+    gap: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: `${colors.navy}14`,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: `${colors.navy}33`,
+    borderColor: colors.border,
+  },
+  oppTopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  oppMark: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.sm,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  oppBody: { flex: 1, gap: 2 },
-  oppFactory: { ...typography.bodyBold, color: colors.dark },
-  oppRole: { ...typography.label, color: colors.muted },
+  oppTitleCol: { flex: 1, gap: 2 },
+  oppTitle: {
+    ...typography.label,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    color: colors.ink,
+  },
+  oppCompany: { ...typography.caption, color: colors.muted },
   oppMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
-    marginTop: spacing.xs,
   },
-  oppDistance: {
+  oppLocation: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 },
+  oppLocationText: { ...typography.caption, color: colors.muted, flexShrink: 1 },
+  oppSalary: {
+    ...typography.label,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '800',
+    color: colors.primaryDark,
+    flexShrink: 1,
+  },
+  oppSkillRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
+  oppMiniChip: {
+    height: 28,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.chipBg,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: 4,
-    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.xs,
+    borderWidth: 1,
   },
-  oppDistanceText: { ...typography.caption, color: colors.muted, fontWeight: '700' },
+  oppMiniChipMore: { backgroundColor: colors.chipBg, borderColor: colors.border },
+  oppMiniChipText: { ...typography.caption, fontSize: 12, fontWeight: '700' },
+  oppMiniChipTextMore: { color: colors.muted },
+  oppSeam: { height: 0, borderTopWidth: 1, borderStyle: 'dashed', borderColor: colors.border },
+  oppFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  oppFooterMeta: { ...typography.caption, color: colors.muted, flexShrink: 1 },
+  oppCta: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  oppCtaText: { ...typography.label, color: colors.primary },
 });

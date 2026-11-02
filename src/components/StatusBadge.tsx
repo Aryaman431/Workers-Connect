@@ -7,7 +7,7 @@ export type StatusBadgeVariant = 'success' | 'warning' | 'muted';
 
 const TONES: Record<StatusBadgeVariant, { bg: string; dot: string; fg: string }> = {
   success: { bg: colors.successSoft, dot: colors.success, fg: colors.success },
-  warning: { bg: '#F8EEDB', dot: colors.warning, fg: '#9A6A16' },
+  warning: { bg: colors.warningSoft, dot: colors.warning, fg: colors.warningInk },
   muted: { bg: colors.chipBg, dot: colors.muted, fg: colors.muted },
 };
 

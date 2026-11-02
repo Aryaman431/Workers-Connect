@@ -2,16 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from 'expo-router';
-import Animated, {
-  FadeInDown,
-  LinearTransition,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors, radius, shadows, spacing, typography } from '../theme';
+import { layoutSoft, usePressScale } from '../theme/motion';
 import { skillById, type IconLib, type Worker } from '../data/mockData';
 import { AppIcon } from './AppIcon';
 import { Avatar } from './Avatar';
@@ -51,13 +46,12 @@ type CardProps = {
  * Optional inline save toggle used by both Search and Saved lists.
  */
 export function EmployerWorkerCard({ worker, onView, saved = false, onToggleSave, index = 0 }: CardProps) {
-  const saveScale = useSharedValue(1);
-  const saveStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveScale.value }] }));
+  const savePress = usePressScale('control');
 
   return (
     <Animated.View
       entering={FadeInDown.delay(Math.min(index, 5) * 60).duration(300)}
-      layout={LinearTransition.springify().damping(18)}
+      layout={layoutSoft}
       style={[styles.card, shadows.card, !worker.available && styles.cardBusy]}
     >
       <View style={styles.cardTop}>
@@ -73,18 +67,12 @@ export function EmployerWorkerCard({ worker, onView, saved = false, onToggleSave
         {onToggleSave ? (
           <AnimatedPressable
             onPress={onToggleSave}
-            onPressIn={() => {
-               
-              saveScale.value = withSpring(0.9, { damping: 18, stiffness: 320 });
-            }}
-            onPressOut={() => {
-               
-              saveScale.value = withSpring(1, { damping: 15, stiffness: 240 });
-            }}
+            onPressIn={savePress.onPressIn}
+            onPressOut={savePress.onPressOut}
             accessibilityRole="button"
             accessibilityState={{ selected: saved }}
             accessibilityLabel={saved ? `Remove ${worker.name} from saved workers` : `Save ${worker.name}`}
-            style={[styles.saveBtn, saveStyle]}
+            style={[styles.saveBtn, savePress.style]}
           >
             <Ionicons
               name={saved ? 'bookmark' : 'bookmark-outline'}
@@ -212,7 +200,7 @@ const styles = StyleSheet.create({
   // --- Worker card -------------------------------------------------------
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
@@ -240,7 +228,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingHorizontal: spacing.sm + 2,
     paddingVertical: 5,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
   },
   chipText: { ...typography.caption, fontWeight: '800', fontSize: 12 },
   cardActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

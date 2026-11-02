@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import {
   Avatar,
   AvailabilityToggle,
+  GlassSurface,
   Screen,
   SectionHeader,
   SkillCard,
@@ -14,6 +15,7 @@ import {
 } from '../../components';
 import { OpportunityCard } from '../../components/WorkerFlowBits';
 import { colors, radius, spacing, typography } from '../../theme';
+import { enter } from '../../theme/motion';
 import { useAppState } from '../../state/AppContext';
 import { opportunities, skillById, workers, type Skill } from '../../data/mockData';
 
@@ -55,7 +57,7 @@ export default function WorkerHomeScreen() {
     <Screen bg={colors.bg}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Greeting header with a subtle textile weave behind it. */}
-        <Animated.View entering={FadeInDown.duration(300)} style={styles.headerBlock}>
+        <Animated.View entering={enter.fadeUp()} style={styles.headerBlock}>
           <TextilePattern color={colors.navy} opacity={0.06} count={8} />
           <View style={styles.headerRow}>
             <View style={styles.headerText}>
@@ -77,26 +79,30 @@ export default function WorkerHomeScreen() {
         </Animated.View>
 
         {/* Hero: availability is the visual anchor of this screen. */}
-        <Animated.View entering={FadeInDown.delay(80).duration(320)}>
+        <Animated.View entering={enter.fadeUp(60)}>
           <AvailabilityToggle available={available} onToggle={() => setAvailable(!available)} />
         </Animated.View>
 
         {/* Live status strip — also the entry point to the availability screen. */}
-        <Pressable
-          onPress={() => router.push('/availability')}
-          accessibilityRole="button"
-          accessibilityLabel="Open availability settings"
-          style={({ pressed }) => [styles.liveRow, pressed && styles.pressedSm]}
-        >
-          <View style={styles.dotWrap}>
-            <Animated.View style={[styles.dotPulse, dotStyle]} />
-            <View style={[styles.dot, { backgroundColor: available ? colors.success : colors.muted }]} />
-          </View>
-          <Text style={styles.liveText} numberOfLines={1}>
-            {available ? 'Visible to employers right now.' : 'Hidden from employers right now.'}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.muted} />
-        </Pressable>
+        <Animated.View entering={enter.fadeUp(120)}>
+          <Pressable
+            onPress={() => router.push('/availability')}
+            accessibilityRole="button"
+            accessibilityLabel="Open availability settings"
+            style={({ pressed }) => [pressed && styles.pressedSm]}
+          >
+            <GlassSurface tone="light" emphasis="strong" style={[styles.liveRow, { borderRadius: radius.md }]}>
+              <View style={styles.dotWrap}>
+                <Animated.View style={[styles.dotPulse, dotStyle]} />
+                <View style={[styles.dot, { backgroundColor: available ? colors.success : colors.muted }]} />
+              </View>
+              <Text style={styles.liveText} numberOfLines={1}>
+                {available ? 'Visible to employers right now.' : 'Hidden from employers right now.'}
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            </GlassSurface>
+          </Pressable>
+        </Animated.View>
 
         {/* Your skills */}
         <View>
@@ -132,18 +138,10 @@ export default function WorkerHomeScreen() {
           <SectionHeader title="NEARBY OPPORTUNITIES" />
           <View style={styles.oppList}>
             {opportunities.map((opp, i) => (
-              <Animated.View key={opp.id} entering={FadeInDown.delay(200 + i * 80).duration(300)}>
+              <Animated.View key={opp.id} entering={enter.listRow(i)}>
                 <OpportunityCard
-                  factory={opp.factory}
-                  role={opp.role}
-                  distanceKm={opp.distanceKm}
-                  hiring={opp.hiring}
-                  onPress={() =>
-                    Alert.alert(
-                      opp.factory,
-                      `${opp.role} — ${opp.distanceKm} km away.\nSample opportunity for demonstration.`
-                    )
-                  }
+                  opportunity={opp}
+                  onPress={() => router.push(`/job/${opp.id}`)}
                 />
               </Animated.View>
             ))}
@@ -186,10 +184,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 52,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
   },
   liveText: { ...typography.label, color: colors.dark, flex: 1 },
   dotWrap: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },

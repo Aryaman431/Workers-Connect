@@ -15,3 +15,8 @@ export { SearchBar } from './SearchBar';
 export { FilterChip } from './FilterChip';
 export { TextilePattern } from './TextilePattern';
 export { SpeakerButton } from './SpeakerButton';
+export { GlassSurface } from './GlassSurface';
+export type { GlassSurfaceProps } from './GlassSurface';
+export { GlassTabBar } from './GlassTabBar';
+export type { GlassTabBarProps } from './GlassTabBar';
+export { ThreadDivider, IsoStack, DimSkillIcon } from './TextileMotifs';

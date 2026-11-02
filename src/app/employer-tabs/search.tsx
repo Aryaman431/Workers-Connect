@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { Screen, SearchBar, SectionHeader, SpeakerButton, SkillCard, TextilePattern } from '../../components';
 import {
@@ -13,6 +13,7 @@ import {
   SampleCaption,
 } from '../../components/EmployerFlowBits';
 import { colors, radius, spacing, typography } from '../../theme';
+import { enter } from '../../theme/motion';
 import { skillById, skills, workers } from '../../data/mockData';
 import { useAppState } from '../../state/AppContext';
 
@@ -64,7 +65,7 @@ export default function EmployerSearchScreen() {
         contentContainerStyle={styles.scroll}
       >
         {/* Dark navy search-focused hero */}
-        <Animated.View entering={FadeInDown.duration(300)}>
+        <Animated.View entering={enter.fadeUp()}>
           <View style={[styles.hero, { paddingTop: insets.top + spacing.md }]}>
             <TextilePattern color={colors.white} opacity={0.08} count={14} />
             <View style={styles.heroRow}>
@@ -81,12 +82,12 @@ export default function EmployerSearchScreen() {
         </Animated.View>
 
         {/* Search bar overlapping the hero edge */}
-        <Animated.View entering={FadeInDown.delay(90).duration(300)} style={styles.searchWrap}>
+        <Animated.View entering={enter.fadeUp(90)} style={styles.searchWrap}>
           <SearchBar value={query} onChangeText={setQuery} placeholder="Search worker or skill…" />
         </Animated.View>
 
         {/* Skill picker */}
-        <Animated.View entering={FadeInDown.delay(150).duration(300)} style={styles.section}>
+        <Animated.View entering={enter.fadeUp(150)} style={styles.section}>
           <View style={styles.headRow}>
             <View style={styles.headFlex}>
               <SectionHeader title="What skill do you need?" />
@@ -107,7 +108,7 @@ export default function EmployerSearchScreen() {
         </Animated.View>
 
         {/* Results */}
-        <Animated.View entering={FadeInDown.delay(220).duration(300)} style={styles.section}>
+        <Animated.View entering={enter.fadeUp(220)} style={styles.section}>
           <View style={styles.resultsHead}>
             <Text style={styles.resultsTitle} accessibilityRole="header">
               {heading}
